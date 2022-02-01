@@ -97,13 +97,14 @@ let EventViewer = ({ index, highlightColor, event, source, comparison }) => {
   if (!source) return null
 
   const keys = [... new Set(Object.keys(source).concat(Object.keys(comparison)))].sort()
+  const lastKey = keys.slice(-1)[0]
 
   return <div className={'event-viewer index-' + index}>
     <div>{event?.type}</div>
     <div>{event?.created_at}</div>
     <pre>
       {"{\n"}
-      {keys.map(k => <ComparisonLabel key={k} highlightColor={highlightColor} name={k} value={source[k]} comparison={comparison[k]} />)}
+      {keys.map(k => <ComparisonLabel key={k} highlightColor={highlightColor} name={k} value={source[k]} comparison={comparison[k]} isLast={k === lastKey} />)}
       {"}"}
     </pre>
   </div>
@@ -123,25 +124,24 @@ const selectedEventSelector = index => state => {
   return state.events.find(e => e.id === selectedEventId)
 }
 
-const ComparisonLabel = ({ index, name, value, comparison }) => {
+const ComparisonLabel = ({ index, name, value, comparison, isLast }) => {
   const valueIsNull = value === null || value === undefined
   const comparisonIsNull = comparison === null || comparison === undefined
+  const concatenator = isLast ? '' : ','
 
   if (valueIsNull && comparisonIsNull) return null
 
   if (name === 'eventId') return null
 
   if (valueIsNull) {
-    return <>{`  "${name}": `}<em className='highlight'>undefined</em>{`\n`}</>
+    return <div className='name-value'>"{name}": <em className='highlight'>undefined</em>{concatenator}</div>
   }
 
   if (value === comparison) {
-    return `  "${name}": "${value}"\n`
+    return <div className='name-value'>"{name}": "{value}"{concatenator}</div>
   }
 
-  return <>
-    {'  '}"{name}": <span className='highlight'>"{value}"</span>{'\n'}
-  </>
+  return <div className='name-value'>"{name}": <span className='highlight'>"{value}"</span>{concatenator}</div>
 }
 
 let EventList = ({dispatch, canCompare, events}) => {
