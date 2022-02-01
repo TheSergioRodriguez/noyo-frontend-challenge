@@ -1,6 +1,6 @@
 import { actions } from './redux-store';
 
-const API_BASE = 'http://localhost:5000'
+const API_BASE = 'http://localhost:27606'
 
 const fetchUserIds = () => (dispatch) => {
   return fetch(`${API_BASE}/user_ids`).then((response) => {
@@ -10,7 +10,7 @@ const fetchUserIds = () => (dispatch) => {
       })
     }
 
-    return response.json
+    return response.json()
   }, err => {
     throw err
   }).then(data => {

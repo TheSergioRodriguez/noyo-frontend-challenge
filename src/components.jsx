@@ -145,6 +145,8 @@ let App = ({ addresses, events, userIds, selectedUserId, selectedAddressId, comp
   </>
 }
 App = connect(state => {
+  console.log('state', state)
+
   return {
     addresses : undeletedAddresses(state.addresses),
     ...state
