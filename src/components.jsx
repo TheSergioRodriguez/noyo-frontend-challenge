@@ -110,7 +110,6 @@ let EventViewer = ({ index, highlightColor, event, source, comparison }) => {
 }
 
 EventViewer = connect((state, props) => {
-  console.log(state)
   return {
     index: props.index,
     event: selectedEventSelector(props.index)(state),
@@ -121,8 +120,7 @@ EventViewer = connect((state, props) => {
 
 const selectedEventSelector = index => state => {
   const selectedEventId = state.comparisonJson && state.comparisonJson[index].eventId
-  const event = state.events.find(e => e.id === selectedEventId)
-  return event
+  return state.events.find(e => e.id === selectedEventId)
 }
 
 const ComparisonLabel = ({ index, name, value, comparison }) => {
