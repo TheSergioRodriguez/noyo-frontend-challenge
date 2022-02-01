@@ -47,6 +47,7 @@ const handleEventToggle = (dispatch, guid) => (e) => {
     payload: guid
   })
 }
+
 let Event = ({ dispatch, event, guid, isSelected, isEnabled }) => {
   return <li>
     <input id={guid} type="checkbox" checked={isSelected} disabled={!isEnabled} onChange={handleEventToggle(dispatch, guid)} />
@@ -55,6 +56,7 @@ let Event = ({ dispatch, event, guid, isSelected, isEnabled }) => {
     </label>
   </li>
 }
+
 Event = connect((state, ownProps) => {
   const isSelected = !!state.selectedEvents[ownProps.guid]
   return {
@@ -62,7 +64,6 @@ Event = connect((state, ownProps) => {
     isEnabled : isSelected || canSelectEvents(state.selectedEvents)
   }
 })(Event)
-
 
 const handleCompareClick = (dispatch) => (e) => {
   dispatch(fetchSelectedEventDetails())
@@ -95,20 +96,21 @@ const handleCancelCompareClick = dispatch => () => {
 let EventViewer = ({ index, highlightColor, event, source, comparison }) => {
   if (!source) return null
 
-  const keyValues = Object.entries(source)
+  const keys = [... new Set(Object.keys(source).concat(Object.keys(comparison)))].sort()
 
   return <div className={'event-viewer index-' + index}>
     <div>{event?.type}</div>
     <div>{event?.created_at}</div>
     <pre>
       {"{\n"}
-      {keyValues.map(([key, value]) => <ComparisonLabel key={key} highlightColor={highlightColor} name={key} value={value} comparison={comparison[key]} />)}
+      {keys.map(k => <ComparisonLabel key={k} highlightColor={highlightColor} name={k} value={source[k]} comparison={comparison[k]} />)}
       {"}"}
     </pre>
   </div>
 }
 
 EventViewer = connect((state, props) => {
+  console.log(state)
   return {
     index: props.index,
     event: selectedEventSelector(props.index)(state),
@@ -118,22 +120,25 @@ EventViewer = connect((state, props) => {
 })(EventViewer)
 
 const selectedEventSelector = index => state => {
-  const selectedEventId = Object.keys(state.selectedEvents)[index].split('-').at(-1)
-  const event = state.events.find(e => e.id == selectedEventId)
+  const selectedEventId = state.comparisonJson && state.comparisonJson[index].eventId
+  const event = state.events.find(e => e.id === selectedEventId)
   return event
 }
 
 const ComparisonLabel = ({ index, name, value, comparison }) => {
-  if (!value) return null
+  const valueIsNull = value === null || value === undefined
+  const comparisonIsNull = comparison === null || comparison === undefined
+
+  if (valueIsNull && comparisonIsNull) return null
+
+  if (name === 'eventId') return null
+
+  if (valueIsNull) {
+    return <>{`  "${name}": `}<em className='highlight'>undefined</em>{`\n`}</>
+  }
 
   if (value === comparison) {
     return `  "${name}": "${value}"\n`
-  }
-
-  if (value && !comparison) {
-    return <>
-      {'  '}<span className='highlight'>"{name}": "{value}"{'\n'}</span>
-    </>
   }
 
   return <>
@@ -212,8 +217,6 @@ let App = ({ addresses, events, userIds, selectedUserId, selectedAddressId, comp
 }
 
 App = connect(state => {
-  console.log('state', state)
-
   return {
     addresses : undeletedAddresses(state.addresses),
     ...state

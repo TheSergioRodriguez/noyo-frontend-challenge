@@ -27,7 +27,8 @@ const reducer = (state, action) => {
     case actions.FETCH_USERS_SUCCESS:
       return {
         ...state,
-        userIds : action.payload
+        userIds: action.payload,
+        error: ''
       }
     case actions.FETCH_USERS_ERROR:
       return {
