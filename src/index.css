@@ -41,3 +41,45 @@ form, .addresses {
 .addresses .selected > pre {
   outline: 1px dashed #333;
 }
+
+.comparison-display {
+  position: absolute;
+  border: 2px solid black;
+  background-color: white;
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;border-radius: 4px;
+  left: 10%;
+}
+
+.comparison-display .controls {
+  padding-bottom: 1em;
+  text-align: right;
+  width: 100%;
+}
+
+.event-viewer {
+  display: inline-block;
+  overflow-x: auto;
+  width: 50%;
+  vertical-align: top;
+}
+
+.glass {
+  left: 0;
+  top: 0;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: 20%;
+}
+
+.index-0 .highlight {
+  background-color: lightsalmon;
+}
+
+.index-1 .highlight {
+  background-color: lightskyblue;
+}
+

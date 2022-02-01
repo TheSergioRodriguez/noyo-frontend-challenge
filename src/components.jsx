@@ -65,17 +65,80 @@ Event = connect((state, ownProps) => {
 
 
 const handleCompareClick = (dispatch) => (e) => {
-  /*
-   * Your code here (and probably elsewhere)
-   *
-   *
-   * We've provided a thunk function to fetch
-   * event data.
-   * Find it in thunks.js, lines 81-107,
-   * and referenced in the comment below on line 78.
-   */
+  dispatch(fetchSelectedEventDetails())
+  dispatch({ type: actions.COMPARE_SELECTED_EVENTS })
+}
 
-  // dispatch(fetchSelectedEventDetails())
+let ComparisonDisplay = ({ dispatch }) => {
+  return <>
+    <div className='glass' onClick={handleCancelCompareClick(dispatch)} />
+    <div className='comparison-display'>
+      <div className='controls'>
+        <button onClick={handleCancelCompareClick(dispatch)}>
+          Close
+        </button>
+      </div>
+      <EventViewer index={0} />
+      <EventViewer index={1} />
+    </div>
+  </>
+}
+
+ComparisonDisplay = connect(state => {
+  return {}
+})(ComparisonDisplay)
+
+const handleCancelCompareClick = dispatch => () => {
+  dispatch({ type: actions.STOP_COMPARING_SELECTED_EVENTS })
+}
+
+let EventViewer = ({ index, highlightColor, event, source, comparison }) => {
+  if (!source) return null
+
+  const keyValues = Object.entries(source)
+
+  return <div className={'event-viewer index-' + index}>
+    <div>{event?.type}</div>
+    <div>{event?.created_at}</div>
+    <pre>
+      {"{\n"}
+      {keyValues.map(([key, value]) => <ComparisonLabel key={key} highlightColor={highlightColor} name={key} value={value} comparison={comparison[key]} />)}
+      {"}"}
+    </pre>
+  </div>
+}
+
+EventViewer = connect((state, props) => {
+  return {
+    index: props.index,
+    event: selectedEventSelector(props.index)(state),
+    source: state.comparisonJson && state.comparisonJson[props.index],
+    comparison: state.comparisonJson && state.comparisonJson[props.index === 1 ? 0 : 1]
+  }
+})(EventViewer)
+
+const selectedEventSelector = index => state => {
+  const selectedEventId = Object.keys(state.selectedEvents)[index].split('-').at(-1)
+  const event = state.events.find(e => e.id == selectedEventId)
+  return event
+}
+
+const ComparisonLabel = ({ index, name, value, comparison }) => {
+  if (!value) return null
+
+  if (value === comparison) {
+    return `  "${name}": "${value}"\n`
+  }
+
+  if (value && !comparison) {
+    return <>
+      {'  '}<span className='highlight'>"{name}": "{value}"{'\n'}</span>
+    </>
+  }
+
+  return <>
+    {'  '}"{name}": <span className='highlight'>"{value}"</span>{'\n'}
+  </>
 }
 
 let EventList = ({dispatch, canCompare, events}) => {
@@ -88,6 +151,7 @@ let EventList = ({dispatch, canCompare, events}) => {
     </ul>
   </>
 }
+
 EventList = connect(state => {
   return { canCompare : Object.keys(state.selectedEvents).length > 1 }
 })(EventList)
@@ -142,8 +206,11 @@ let App = ({ addresses, events, userIds, selectedUserId, selectedAddressId, comp
         : <p>{selectedAddressId ? 'No events found.' : 'Select an address to see events'}</p>
       }
     </div>
+
+    {comparingEvents ? <ComparisonDisplay /> : null}
   </>
 }
+
 App = connect(state => {
   console.log('state', state)
 

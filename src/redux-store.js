@@ -15,7 +15,9 @@ const actions = {
   FETCH_EVENTS_ERROR: 'fetch_events_error',
   TOGGLE_EVENT_SELECTION: 'toggle_event_selection',
   EVENT_DETAILS_SUCCESS: 'event_details_success',
-  EVENT_DETAILS_ERROR: 'event_details_error'
+  EVENT_DETAILS_ERROR: 'event_details_error',
+  COMPARE_SELECTED_EVENTS: 'compare_selected_events',
+  STOP_COMPARING_SELECTED_EVENTS: 'stop_comparing_selected_events'
 }
 
 
@@ -94,6 +96,11 @@ const reducer = (state, action) => {
       return {
         ...state,
         comparingEvents : true
+      }
+    case actions.STOP_COMPARING_SELECTED_EVENTS:
+      return {
+        ...state,
+        comparingEvents: false
       }
     case actions.EVENT_DETAILS_SUCCESS:
       return {
